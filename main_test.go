@@ -31,10 +31,10 @@ func TestGetPodAge(t *testing.T) {
 
 	pod := &v1.Pod{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: "testpod",
+			Name:      "testpod",
 			Namespace: "ascarb",
 			Labels: map[string]string{
-				"app":"testapp",
+				"app": "testapp",
 			},
 			CreationTimestamp: creationTime,
 			Annotations: map[string]string{
@@ -44,17 +44,17 @@ func TestGetPodAge(t *testing.T) {
 		Spec: v1.PodSpec{
 			Containers: []v1.Container{
 				{
-					Name: "testcontainer",
+					Name:  "testcontainer",
 					Image: "testimage:latest",
 					Ports: []v1.ContainerPort{
 						{
 							ContainerPort: 8080,
-						}
+						},
 					},
 				},
 			},
 			NodeSelector: map[string]string{
-				"disk":"ssd"
+				"disk": "ssd",
 			},
 			RestartPolicy: v1.RestartPolicyNever,
 		},
@@ -62,19 +62,19 @@ func TestGetPodAge(t *testing.T) {
 			Phase: v1.PodSucceeded,
 			ContainerStatuses: []v1.ContainerStatus{
 				{
-					Name: "testcontainer",
+					Name:         "testcontainer",
 					RestartCount: 2,
-					Ready: true,
+					Ready:        true,
 				},
 			},
-			StartTime: creationTime,
-			CompletionTime: &metav1.Time{Time: time.Now()}
+			StartTime:      creationTime,
+			CompletionTime: &metav1.Time{Time: time.Now()},
 		},
 	}
 
 	result := getPodAge()
 
-	if result == nil{
+	if result == nil {
 		t.Errorf("Age not calculated.")
 	}
 }
@@ -84,10 +84,10 @@ func TestGetRestartCount(t *testing.T) {
 
 	pod := &v1.Pod{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: "testpod",
+			Name:      "testpod",
 			Namespace: "ascarb",
 			Labels: map[string]string{
-				"app":"testapp",
+				"app": "testapp",
 			},
 			CreationTimestamp: creationTime,
 			Annotations: map[string]string{
@@ -97,17 +97,17 @@ func TestGetRestartCount(t *testing.T) {
 		Spec: v1.PodSpec{
 			Containers: []v1.Container{
 				{
-					Name: "testcontainer",
+					Name:  "testcontainer",
 					Image: "testimage:latest",
 					Ports: []v1.ContainerPort{
 						{
 							ContainerPort: 8080,
-						}
+						},
 					},
 				},
 			},
 			NodeSelector: map[string]string{
-				"disk":"ssd"
+				"disk": "ssd",
 			},
 			RestartPolicy: v1.RestartPolicyNever,
 		},
@@ -115,29 +115,29 @@ func TestGetRestartCount(t *testing.T) {
 			Phase: v1.PodSucceeded,
 			ContainerStatuses: []v1.ContainerStatus{
 				{
-					Name: "testcontainer",
+					Name:         "testcontainer",
 					RestartCount: 2,
-					Ready: true,
+					Ready:        true,
 				},
 			},
-			StartTime: creationTime,
-			CompletionTime: &metav1.Time{Time: time.Now()}
+			StartTime:      creationTime,
+			CompletionTime: &metav1.Time{Time: time.Now()},
 		},
 	}
 
 	result := getPodRestarts()
 
-	if result == nil{
+	if result == nil {
 		t.Errorf("Restart was nil.")
 	}
 
-	if result !=2 {
+	if result != 2 {
 		t.Errorf("Restart count was not 2.")
 	}
 }
 
 func TestSort(t *testing.T) {
-	
+
 	var pod1 Pod
 	var pod2 Pod
 	var pod3 Pod
@@ -154,12 +154,22 @@ func TestSort(t *testing.T) {
 	pod3.Name = "b-pod"
 	pod3.RestartCount = 100
 
-	var pods []Pod{pod1, pod2, pod3}
+	pods := []Pod{pod1, pod2, pod3}
 
 	result1 := sortPods("name", pods)
 	result2 := sortPods("age", pods)
 	result3 := sortPods("restart", pods)
 
+	if len(result1) < 3 {
+		t.Errorf("FAIL")
+	}
 
-	
+	if len(result2) < 3 {
+		t.Errorf("FAIL")
+	}
+
+	if len(result3) < 3 {
+		t.Errorf("FAIL")
+	}
+
 }
