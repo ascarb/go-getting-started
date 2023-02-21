@@ -10,7 +10,7 @@ import (
 )
 
 func TestGetPods(t *testing.T) {
-	var results []string
+	var results []Pod
 	var err error
 
 	results, err = GetPods("/Users/adam/code/go-getting-started/okteto-kube.config", "ascarb")

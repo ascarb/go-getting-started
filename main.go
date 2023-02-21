@@ -12,6 +12,8 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
+
+	"github.com/gin-gonic/gin"
 )
 
 // Pod String struct of k8s pod info.
@@ -25,34 +27,44 @@ type ByName []Pod
 type ByAge []Pod
 type ByRestartCount []Pod
 
-const (
-	Age     = 0
-	Name    = 1
-	Restart = 2
-)
-
 func main() {
 	fmt.Println("Starting hello-okteto server...")
-	//http.HandleFunc("/", helloServer)
-	// if err := http.ListenAndServe(":8080", nil); err != nil {
-	// 	panic(err)
-	// }
 
-	results, err := GetPods("/Users/adam/code/go-getting-started/okteto-kube.config", "ascarb")
-	if err != nil {
-		panic(err)
-	}
+	router := gin.Default()
 
-	fmt.Println(len(results))
+	//TODO: better error handling, and an actual api spec to follow against
+	router.GET("/pods", func(context *gin.Context) {
+		pods, err := GetPods("/Users/adam/code/go-getting-started/okteto-kube.config", "ascarb")
+		if err != nil {
+			log.Fatalf("ERROR: " + err.Error())
+			context.JSON(http.StatusNotFound, "Error: Not Authorized or Not Found.")
+		}
+		var podResult []Pod
+		if sortParam := context.Query("sort"); sortParam != "" {
+			switch sortParam {
+			case "name":
+				podResult = sortPods("name", pods)
+			case "age":
+				podResult = sortPods("age", pods)
+			case "restart":
+				podResult = sortPods("restart", pods)
+			}
 
-}
+		} else {
+			podResult = append(podResult, pods...)
+		}
 
-func helloServer(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprint(w, "Hello Okteto!")
+		context.JSON(http.StatusOK, podResult)
+
+		if err := router.Run(":8080"); err != nil {
+			log.Fatalf(err.Error())
+		}
+	})
+
 }
 
 // GetPods Returns a string array, or error, of the names of pods for the kubeconfig passed in.
-func GetPods(kubeConfigPath string, namespace string) ([]string, error) {
+func GetPods(kubeConfigPath string, namespace string) ([]Pod, error) {
 	//TODO:read path and namespace from config file.
 	config, err := clientcmd.BuildConfigFromFlags("", kubeConfigPath)
 	if err != nil {
@@ -79,12 +91,7 @@ func GetPods(kubeConfigPath string, namespace string) ([]string, error) {
 		podList = append(podList, pod)
 	}
 
-	var podStringList []string
-	for _, podInfo := range pods.Items {
-		fmt.Println(podInfo.Name)
-		podStringList = append(podStringList, podInfo.Name)
-	}
-	return podStringList, err
+	return podList, err
 }
 
 func getPodAge(podInfo v1.Pod) int {
