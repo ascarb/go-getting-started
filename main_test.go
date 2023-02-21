@@ -67,14 +67,12 @@ func TestGetPodAge(t *testing.T) {
 					Ready:        true,
 				},
 			},
-			StartTime:      creationTime,
-			CompletionTime: &metav1.Time{Time: time.Now()},
 		},
 	}
 
-	result := getPodAge()
+	result := getPodAge(*pod)
 
-	if result == nil {
+	if result == 0 {
 		t.Errorf("Age not calculated.")
 	}
 }
@@ -120,16 +118,10 @@ func TestGetRestartCount(t *testing.T) {
 					Ready:        true,
 				},
 			},
-			StartTime:      creationTime,
-			CompletionTime: &metav1.Time{Time: time.Now()},
 		},
 	}
 
-	result := getPodRestarts()
-
-	if result == nil {
-		t.Errorf("Restart was nil.")
-	}
+	result := getPodRestarts(*pod)
 
 	if result != 2 {
 		t.Errorf("Restart count was not 2.")
