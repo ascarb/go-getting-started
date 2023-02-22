@@ -32,9 +32,12 @@ func main() {
 
 	router := gin.Default()
 
+	router.GET("/", func(ctx *gin.Context) {
+		ctx.String(200, "Hello Okteto!")
+	})
 	//TODO: better error handling, and an actual api spec to follow against
 	router.GET("/pods", func(context *gin.Context) {
-		pods, err := GetPods("/Users/adam/code/go-getting-started/okteto-kube.config", "ascarb")
+		pods, err := GetPods("./okteto-kube.config", "ascarb")
 		if err != nil {
 			log.Fatalf("ERROR: " + err.Error())
 			context.JSON(http.StatusNotFound, "Error: Not Authorized or Not Found.")
@@ -56,10 +59,11 @@ func main() {
 
 		context.JSON(http.StatusOK, podResult)
 
-		if err := router.Run(":8080"); err != nil {
-			log.Fatalf(err.Error())
-		}
 	})
+
+	if err := router.Run(":8080"); err != nil {
+		log.Fatalf(err.Error())
+	}
 
 }
 
@@ -94,6 +98,7 @@ func GetPods(kubeConfigPath string, namespace string) ([]Pod, error) {
 	return podList, err
 }
 
+// getPodAge gets the age in seconds of the pod since creation to now.
 func getPodAge(podInfo v1.Pod) int {
 	creationTime := podInfo.ObjectMeta.CreationTimestamp.Time
 	age := int(time.Since(creationTime).Seconds())
@@ -102,6 +107,7 @@ func getPodAge(podInfo v1.Pod) int {
 
 }
 
+// getPodRestarts get the number of restarts as listed in the pod metadata container status.
 func getPodRestarts(podInfo v1.Pod) int {
 	restarts := 0
 

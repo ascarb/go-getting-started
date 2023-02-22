@@ -13,7 +13,7 @@ func TestGetPods(t *testing.T) {
 	var results []Pod
 	var err error
 
-	results, err = GetPods("/Users/adam/code/go-getting-started/okteto-kube.config", "ascarb")
+	results, err = GetPods("./okteto-kube.config", "ascarb")
 	if err != nil {
 		t.Errorf("Error was not nil.")
 	}

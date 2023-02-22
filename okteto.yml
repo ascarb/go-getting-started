@@ -1,5 +1,5 @@
 build:
-  hello-world:
+  hello-okteto:
     image: okteto.dev/go-hello-okteto:1.0.0
     context: .
 
@@ -7,7 +7,7 @@ deploy:
   - kubectl apply -f k8s.yml
 
 dev:
-  hello-world:
+  hello-okteto:
     image: okteto/golang:1
     command: bash
     sync:
