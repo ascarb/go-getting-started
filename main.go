@@ -121,6 +121,7 @@ func getPodRestarts(podInfo v1.Pod) int {
 	return restarts
 }
 
+// sortPods Sorts pod by name, age, and restart count.
 func sortPods(sortType string, pods []Pod) []Pod {
 	if sortType == "name" {
 		sort.Sort(ByName(pods))
