@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"sort"
+	"strings"
 	"time"
 
 	v1 "k8s.io/api/core/v1"
@@ -32,18 +33,20 @@ func main() {
 
 	router := gin.Default()
 
-	router.GET("/", func(ctx *gin.Context) {
-		ctx.String(200, "Hello Okteto!")
+	router.GET("/", func(context *gin.Context) {
+		context.String(200, "Hello Okteto!")
 	})
+
 	//TODO: better error handling, and an actual api spec to follow against
 	router.GET("/pods", func(context *gin.Context) {
+		//TODO: Put the path to important config in a config file, and marshall into struct.
 		pods, err := GetPods("./okteto-kube.config", "ascarb")
 		if err != nil {
 			log.Fatalf("ERROR: " + err.Error())
 			context.JSON(http.StatusNotFound, "Error: Not Authorized or Not Found.")
 		}
 		var podResult []Pod
-		if sortParam := context.Query("sort"); sortParam != "" {
+		if sortParam := context.Query("sort"); strings.ToLower(sortParam) != "" {
 			switch sortParam {
 			case "name":
 				podResult = sortPods("name", pods)
